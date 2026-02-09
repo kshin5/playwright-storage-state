@@ -1,10 +1,10 @@
 # Playwright Storage State Generator for Splunk
 
-[日本語版 README はこちら](README.ja.md)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-A tool to generate pre-authenticated browser state (Storage State) for [Playwright MCP](https://github.com/anthropics/anthropic-cookbook/tree/main/misc/model_context_protocol) when accessing Splunk. This allows the MCP server to use a saved session instead of exposing credentials in arguments or logs.
+[Japanese README](README.ja.md)
 
-Works on **Windows**, **Linux**, **macOS**, and **WSL2**.
+A tool to generate pre-authenticated browser state (Storage State) for [Playwright MCP](https://github.com/microsoft/playwright/tree/main/packages/playwright-mcp) when accessing Splunk. This allows the MCP server to use a saved session instead of exposing credentials in arguments or logs.
 
 ## Prerequisites
 
@@ -12,18 +12,16 @@ Works on **Windows**, **Linux**, **macOS**, and **WSL2**.
 
 ## Installation
 
-Extract the zip to any directory and run `npm install`. Chromium will be downloaded automatically during installation.
-
 ```bash
+git clone https://github.com/<owner>/playwright-storage-state.git
 cd playwright-storage-state
 npm install
+npx playwright install chromium
 ```
-
-> If Chromium is not installed automatically, run `npx playwright install chromium` manually.
 
 ## Setup
 
-Create a `.env` file with your Splunk credentials in the `playwright/.auth/` directory (following the [Playwright authentication convention](https://playwright.dev/docs/auth#core-concepts)).
+Create a `.env` file with your Splunk credentials in the `playwright/.auth/` directory (directory structure inspired by [Playwright's authentication guide](https://playwright.dev/docs/auth#core-concepts)).
 
 ```bash
 mkdir -p playwright/.auth
@@ -31,7 +29,7 @@ mkdir -p playwright/.auth
 
 Create `playwright/.auth/splunk-myenv.env` with the following content:
 
-```
+```ini
 SPLUNK_URL=https://your-splunk-server:8000
 SPLUNK_USER=your-username
 SPLUNK_PASS=your-password
@@ -67,9 +65,20 @@ node generate-storage-state.js \
 
 - If the output directory does not exist, it will be created automatically.
 
-## Cursor MCP Configuration
+## Using with Playwright MCP
 
-Add the Playwright MCP server to `~/.cursor/mcp.json` (Windows: `%USERPROFILE%\.cursor\mcp.json`), specifying the **absolute path** to the generated Storage State file.
+Pass the generated Storage State file to the Playwright MCP server using the `--storage-state` option with an **absolute path**:
+
+```
+@playwright/mcp ... --storage-state /absolute/path/to/splunk-myenv-storage.json
+```
+
+> Use an **absolute path** for `--storage-state`. Relative paths and `~` may not be resolved correctly by the MCP server.
+
+<details>
+<summary>Example: Cursor IDE configuration</summary>
+
+Add the following to `~/.cursor/mcp.json` (Windows: `%USERPROFILE%\.cursor\mcp.json`):
 
 ```json
 "playwright-myenv": {
@@ -93,7 +102,7 @@ Absolute path examples:
 | macOS | `/Users/<USER>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json` |
 | Windows | `C:\\Users\\<USER>\\playwright-storage-state\\playwright\\.auth\\splunk-myenv-storage.json` |
 
-> Use an **absolute path** for `--storage-state`. Relative paths and `~` may not be resolved correctly by the MCP server.
+</details>
 
 ## Session Renewal
 
@@ -121,7 +130,7 @@ After regeneration, toggle the MCP server OFF/ON in Cursor, or restart Cursor to
 
 ### Chromium not found
 
-- Run `npx playwright install chromium` to install the browser.
+- Run `npx playwright install chromium` to install the browser. This is required after `npm install`.
 
 ## Project Structure
 

@@ -1,10 +1,10 @@
 # Playwright Storage State 生成ツール（Splunk 向け）
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
 [English README](README.md)
 
 Playwright MCP で Splunk にアクセスする際、事前にログイン済みのセッション（Storage State）を生成するためのツールです。認証情報を MCP の引数やログに載せずに、Storage State ファイルだけを渡して利用できます。
-
-Windows / Linux / macOS / WSL2 に対応しています。
 
 ## 前提条件
 
@@ -12,18 +12,16 @@ Windows / Linux / macOS / WSL2 に対応しています。
 
 ## インストール
 
-zip を任意の場所に展開し、展開先で以下を実行してください。`npm install` 時に Chromium ブラウザも自動でダウンロードされます。
-
 ```bash
+git clone https://github.com/<owner>/playwright-storage-state.git
 cd playwright-storage-state
 npm install
+npx playwright install chromium
 ```
-
-> Chromium が自動インストールされない場合は、`npx playwright install chromium` を手動で実行してください。
 
 ## セットアップ
 
-認証情報は `.env` 形式のファイルに記載し、プロジェクト内の `playwright/.auth/` ディレクトリに配置してください（[Playwright 公式の推奨パターン](https://playwright.dev/docs/auth#core-concepts)に準拠）。
+認証情報は `.env` 形式のファイルに記載し、プロジェクト内の `playwright/.auth/` ディレクトリに配置してください（[Playwright の認証ガイド](https://playwright.dev/docs/auth#core-concepts)のディレクトリ構成を参考にしています）。
 
 ```bash
 mkdir -p playwright/.auth
@@ -31,7 +29,7 @@ mkdir -p playwright/.auth
 
 `playwright/.auth/splunk-myenv.env` を以下の内容で作成します:
 
-```
+```ini
 SPLUNK_URL=https://your-splunk-server:8000
 SPLUNK_USER=your-username
 SPLUNK_PASS=your-password
@@ -67,9 +65,20 @@ node generate-storage-state.js \
 
 - 出力先のディレクトリが存在しない場合は自動作成されます（作成時にはログに `Created directory: ...` と出ます）。
 
-## Cursor MCP 設定
+## Playwright MCP での使用
 
-`~/.cursor/mcp.json`（Windows: `%USERPROFILE%\.cursor\mcp.json`）に Playwright MCP を登録し、`--storage-state` で生成したファイルの**絶対パス**を指定します。
+生成した Storage State ファイルを Playwright MCP サーバーの `--storage-state` オプションに**絶対パス**で渡します:
+
+```
+@playwright/mcp ... --storage-state /absolute/path/to/splunk-myenv-storage.json
+```
+
+> `--storage-state` には **絶対パス** を指定してください。`~` や相対パスは MCP 起動時に正しく解決されない場合があります。
+
+<details>
+<summary>例: Cursor IDE での設定</summary>
+
+`~/.cursor/mcp.json`（Windows: `%USERPROFILE%\.cursor\mcp.json`）に以下を追加します:
 
 ```json
 "playwright-myenv": {
@@ -93,7 +102,7 @@ node generate-storage-state.js \
 | macOS | `/Users/<USER>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json` |
 | Windows | `C:\\Users\\<USER>\\playwright-storage-state\\playwright\\.auth\\splunk-myenv-storage.json` |
 
-> `--storage-state` には **絶対パス** を指定してください。`~` や相対パスは MCP 起動時に正しく解決されない場合があります。
+</details>
 
 ## セッション期限切れ時の再生成
 
@@ -121,7 +130,7 @@ Splunk のセッションは一定時間で切れます。ログイン画面に�
 
 ### Chromium が見つからない
 
-- `npx playwright install chromium` を実行してブラウザをインストールしてください。
+- `npx playwright install chromium` を実行してブラウザをインストールしてください。`npm install` の後に必要です。
 
 ## ファイル構成
 
