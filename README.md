@@ -8,7 +8,7 @@ A tool to generate pre-authenticated browser state (Storage State) for [Playwrig
 
 ## Prerequisites
 
-- [Node.js](https://nodejs.org/) (LTS recommended)
+- [Node.js](https://nodejs.org/) 18+ (LTS recommended)
 
 ## Installation
 
@@ -21,11 +21,7 @@ npx playwright install chromium
 
 ## Setup
 
-Create a `.env` file with your Splunk credentials in the `playwright/.auth/` directory (directory structure inspired by [Playwright's authentication guide](https://playwright.dev/docs/auth#core-concepts)).
-
-```bash
-mkdir -p playwright/.auth
-```
+Create the `playwright/.auth/` directory if it does not exist, then create a `.env` file there with your Splunk credentials (directory structure inspired by [Playwright's authentication guide](https://playwright.dev/docs/auth#core-concepts)).
 
 Create `playwright/.auth/splunk-myenv.env` with the following content:
 
@@ -78,19 +74,23 @@ Pass the generated Storage State file to the Playwright MCP server using the `--
 <details>
 <summary>Example: Cursor IDE configuration</summary>
 
-Add the following to `~/.cursor/mcp.json` (Windows: `%USERPROFILE%\.cursor\mcp.json`):
+Add the following to `~/.cursor/mcp.json` (Windows: `%USERPROFILE%\.cursor\mcp.json`). The entry goes inside the `mcpServers` object:
 
 ```json
-"playwright-myenv": {
-  "command": "npx",
-  "args": [
-    "-y", "@playwright/mcp@latest",
-    "--browser", "chromium",
-    "--headless",
-    "--ignore-https-errors",
-    "--isolated",
-    "--storage-state", "<absolute-path>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json"
-  ]
+{
+  "mcpServers": {
+    "playwright-myenv": {
+      "command": "npx",
+      "args": [
+        "-y", "@playwright/mcp@latest",
+        "--browser", "chromium",
+        "--headless",
+        "--ignore-https-errors",
+        "--isolated",
+        "--storage-state", "<absolute-path>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json"
+      ]
+    }
+  }
 }
 ```
 
@@ -108,7 +108,12 @@ Absolute path examples:
 
 Splunk sessions expire after a period of time. If the MCP encounters authentication errors or the Splunk login page appears, regenerate the Storage State by running the same command again.
 
-After regeneration, toggle the MCP server OFF/ON in Cursor, or restart Cursor to apply the new session.
+After regeneration, restart the MCP server to use the new session (e.g. toggle MCP OFF/ON in Cursor, or restart your IDE).
+
+## Limitations
+
+- This tool targets Splunk’s **default login page** (username/password form). It does not support SSO, SAML, or custom login pages.
+- Timeouts are fixed in the script: 30 seconds for the initial page load, 10 seconds for the post-login redirect. On slow networks you may need to adjust these values in the script.
 
 ## Troubleshooting
 
@@ -131,6 +136,11 @@ After regeneration, toggle the MCP server OFF/ON in Cursor, or restart Cursor to
 ### Chromium not found
 
 - Run `npx playwright install chromium` to install the browser. This is required after `npm install`.
+- On Linux (especially in CI or minimal environments), you may need system dependencies: `npx playwright install --with-deps chromium`.
+
+### Timeout during login or page load
+
+- The script uses fixed timeouts (30s for page load, 10s for post-login redirect). If you hit timeouts on a slow network, adjust the `timeout` values in the script.
 
 ## Project Structure
 

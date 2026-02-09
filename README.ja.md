@@ -4,11 +4,11 @@
 
 [English README](README.md)
 
-Playwright MCP で Splunk にアクセスする際、事前にログイン済みのセッション（Storage State）を生成するためのツールです。認証情報を MCP の引数やログに載せずに、Storage State ファイルだけを渡して利用できます。
+[Playwright MCP](https://github.com/microsoft/playwright/tree/main/packages/playwright-mcp) で Splunk にアクセスする際、事前にログイン済みのセッション（Storage State）を生成するためのツールです。認証情報を MCP の引数やログに載せずに、Storage State ファイルだけを渡して利用できます。
 
 ## 前提条件
 
-- [Node.js](https://nodejs.org/)（LTS 推奨）
+- [Node.js](https://nodejs.org/) 18 以上（LTS 推奨）
 
 ## インストール
 
@@ -21,11 +21,7 @@ npx playwright install chromium
 
 ## セットアップ
 
-認証情報は `.env` 形式のファイルに記載し、プロジェクト内の `playwright/.auth/` ディレクトリに配置してください（[Playwright の認証ガイド](https://playwright.dev/docs/auth#core-concepts)のディレクトリ構成を参考にしています）。
-
-```bash
-mkdir -p playwright/.auth
-```
+`playwright/.auth/` ディレクトリがなければ作成し、その中に認証情報を記載した `.env` ファイルを配置してください（[Playwright の認証ガイド](https://playwright.dev/docs/auth#core-concepts)のディレクトリ構成を参考にしています）。
 
 `playwright/.auth/splunk-myenv.env` を以下の内容で作成します:
 
@@ -78,19 +74,23 @@ node generate-storage-state.js \
 <details>
 <summary>例: Cursor IDE での設定</summary>
 
-`~/.cursor/mcp.json`（Windows: `%USERPROFILE%\.cursor\mcp.json`）に以下を追加します:
+`~/.cursor/mcp.json`（Windows: `%USERPROFILE%\.cursor\mcp.json`）に以下を追加します。`mcpServers` オブジェクトの中に記述します:
 
 ```json
-"playwright-myenv": {
-  "command": "npx",
-  "args": [
-    "-y", "@playwright/mcp@latest",
-    "--browser", "chromium",
-    "--headless",
-    "--ignore-https-errors",
-    "--isolated",
-    "--storage-state", "<絶対パス>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json"
-  ]
+{
+  "mcpServers": {
+    "playwright-myenv": {
+      "command": "npx",
+      "args": [
+        "-y", "@playwright/mcp@latest",
+        "--browser", "chromium",
+        "--headless",
+        "--ignore-https-errors",
+        "--isolated",
+        "--storage-state", "<絶対パス>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json"
+      ]
+    }
+  }
 }
 ```
 
@@ -108,7 +108,12 @@ node generate-storage-state.js \
 
 Splunk のセッションは一定時間で切れます。ログイン画面に飛ばされたり MCP が認証エラーになる場合は、同じコマンドで Storage State を再生成してください。
 
-再生成後、Cursor の MCP を OFF/ON するか、Cursor を再起動すると新しいセッションが使われます。
+再生成後、MCP サーバーを再起動すると新しいセッションが使われます（例: Cursor で MCP を OFF/ON する、または IDE を再起動する）。
+
+## 制限事項
+
+- 本ツールは Splunk の **デフォルトログインページ**（ユーザー名/パスワードのフォーム）を前提としています。SSO、SAML、カスタムログインページには対応していません。
+- タイムアウト値はスクリプト内で固定です（初回ページ読み込み 30 秒、ログイン後のリダイレクト待ち 10 秒）。遅いネットワークではスクリプト内の値を調整してください。
 
 ## トラブルシューティング
 
@@ -131,6 +136,11 @@ Splunk のセッションは一定時間で切れます。ログイン画面に�
 ### Chromium が見つからない
 
 - `npx playwright install chromium` を実行してブラウザをインストールしてください。`npm install` の後に必要です。
+- Linux（CI やミニマルな環境）では、システム依存パッケージも必要になる場合があります: `npx playwright install --with-deps chromium`。
+
+### ログインやページ読み込みでタイムアウトする
+
+- スクリプト内のタイムアウトは固定です（ページ読み込み 30 秒、ログイン後 10 秒）。遅いネットワークではスクリプト内の `timeout` 値を調整してください。
 
 ## ファイル構成
 

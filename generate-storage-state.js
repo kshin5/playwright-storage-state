@@ -79,7 +79,7 @@ async function generateStorageState() {
     try {
       await page.goto(splunkUrl, { timeout: 30000 });
     } catch (err) {
-      console.error('Splunk サーバーに接続できません。URL とサーバーの状態を確認してください。');
+      console.error('Failed to connect to Splunk server. Verify the URL and server status.');
       console.error(err.message);
       throw err;
     }
@@ -109,11 +109,11 @@ async function generateStorageState() {
           }
         }
       }
-      console.error('ログインに失敗しました。');
+      console.error('Login failed.');
       if (errorText) {
-        console.error(`画面のエラー: ${errorText}`);
+        console.error(`Error on page: ${errorText}`);
       } else {
-        console.error('認証情報（SPLUNK_USER / SPLUNK_PASS）が正しいか確認してください。');
+        console.error('Verify that SPLUNK_USER and SPLUNK_PASS are correct.');
       }
       throw new Error('Login failed');
     }
@@ -122,7 +122,7 @@ async function generateStorageState() {
     if (process.platform !== 'win32') {
       fs.chmodSync(resolvedOutputPath, 0o600);
     } else {
-      console.log('Note: Windows ではファイルのアクセス権限を手動で確認してください。');
+      console.log('Note: On Windows, verify file access permissions manually.');
     }
     console.log(`Storage state saved to: ${resolvedOutputPath}`);
   } finally {
