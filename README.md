@@ -1,38 +1,35 @@
-# Playwright Storage State 生成ツール
+# Playwright Storage State Generator for Splunk
 
-Playwright MCP で Splunk にアクセスする際、事前にログイン済みのセッション（Storage State）を生成するためのツールです。認証情報を MCP の引数やログに載せずに、Storage State ファイルだけを渡して利用できます。
+[日本語版 README はこちら](README.ja.md)
 
-Windows / Linux / macOS / WSL2 に対応しています。
+A tool to generate pre-authenticated browser state (Storage State) for [Playwright MCP](https://github.com/anthropics/anthropic-cookbook/tree/main/misc/model_context_protocol) when accessing Splunk. This allows the MCP server to use a saved session instead of exposing credentials in arguments or logs.
 
-## なぜ JavaScript か
+Works on **Windows**, **Linux**, **macOS**, and **WSL2**.
 
-- 実行環境には **Node.js のみ** を前提とし、`tsx` や `ts-node` の導入は不要にしています。
-- ランタイム依存を最小限にし、`node generate-storage-state.js` でそのまま実行できるようにしています。
+## Prerequisites
 
-## 前提条件
+- [Node.js](https://nodejs.org/) (LTS recommended)
 
-- **Node.js**（LTS 推奨）
+## Installation
 
-## インストール
-
-zip を任意の場所に展開し、展開先で以下を実行してください。`npm install` 時に Chromium ブラウザも自動でダウンロードされます。配置場所に制約はありません。
+Extract the zip to any directory and run `npm install`. Chromium will be downloaded automatically during installation.
 
 ```bash
 cd playwright-storage-state
 npm install
 ```
 
-> Chromium が自動インストールされない場合は、`npx playwright install chromium` を手動で実行してください。
+> If Chromium is not installed automatically, run `npx playwright install chromium` manually.
 
-## .env ファイルの作成
+## Setup
 
-認証情報は `.env` 形式のファイルに記載します。プロジェクト内の `playwright/.auth/` ディレクトリに配置してください（[Playwright 公式の推奨パターン](https://playwright.dev/docs/auth#core-concepts)に準拠）。
+Create a `.env` file with your Splunk credentials in the `playwright/.auth/` directory (following the [Playwright authentication convention](https://playwright.dev/docs/auth#core-concepts)).
 
 ```bash
 mkdir -p playwright/.auth
 ```
 
-`playwright/.auth/splunk-myenv.env` を以下の内容で作成します:
+Create `playwright/.auth/splunk-myenv.env` with the following content:
 
 ```
 SPLUNK_URL=https://your-splunk-server:8000
@@ -40,27 +37,27 @@ SPLUNK_USER=your-username
 SPLUNK_PASS=your-password
 ```
 
-## セキュリティ上の注意
+## Security
 
-- `.env` ファイルには **パスワードが平文** で保存されます。
-- `playwright/.auth/` は `.gitignore` で除外済みのため、git にはコミットされません。
-- Linux / macOS / WSL2 では、`.env` ファイルのアクセス権限を制限してください:
+- The `.env` file stores passwords in **plain text**. Restrict access permissions accordingly.
+- `playwright/.auth/` is excluded from git via `.gitignore`.
+- On Linux / macOS / WSL2, restrict file permissions:
   ```bash
   chmod 600 playwright/.auth/splunk-myenv.env
   ```
-- 生成された Storage State ファイル（JSON）も認証情報に相当します。
-  - Linux / macOS / WSL2 ではスクリプトが自動で `chmod 600` を設定します。
-  - Windows ではスクリプト実行後にアクセス権限を手動で確認してください。
+- The generated Storage State file also contains session credentials.
+  - On Linux / macOS / WSL2, the script automatically sets `chmod 600`.
+  - On Windows, verify file permissions manually after generation.
 
-## 使用方法
+## Usage
 
-プロジェクトディレクトリ内で実行します。
+Run from the project directory:
 
 ```bash
 node generate-storage-state.js <env-file> <output-path>
 ```
 
-例:
+Example:
 
 ```bash
 node generate-storage-state.js \
@@ -68,11 +65,11 @@ node generate-storage-state.js \
   playwright/.auth/splunk-myenv-storage.json
 ```
 
-- 出力先のディレクトリが存在しない場合は自動作成されます（作成時にはログに `Created directory: ...` と出ます）。
+- If the output directory does not exist, it will be created automatically.
 
-## Cursor MCP 設定
+## Cursor MCP Configuration
 
-`~/.cursor/mcp.json`（Windows: `%USERPROFILE%\.cursor\mcp.json`）に Playwright MCP を登録し、`--storage-state` で生成したファイルの**絶対パス**を指定します。
+Add the Playwright MCP server to `~/.cursor/mcp.json` (Windows: `%USERPROFILE%\.cursor\mcp.json`), specifying the **absolute path** to the generated Storage State file.
 
 ```json
 "playwright-myenv": {
@@ -83,67 +80,65 @@ node generate-storage-state.js \
     "--headless",
     "--ignore-https-errors",
     "--isolated",
-    "--storage-state", "<絶対パス>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json"
+    "--storage-state", "<absolute-path>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json"
   ]
 }
 ```
 
-絶対パスの例:
+Absolute path examples:
 
-| 環境 | パスの例 |
-|------|---------|
+| Platform | Example |
+|----------|---------|
 | Linux / WSL2 | `/home/<USER>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json` |
 | macOS | `/Users/<USER>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json` |
 | Windows | `C:\\Users\\<USER>\\playwright-storage-state\\playwright\\.auth\\splunk-myenv-storage.json` |
 
-> `--storage-state` には **絶対パス** を指定してください。`~` や相対パスは MCP 起動時に正しく解決されない場合があります。
+> Use an **absolute path** for `--storage-state`. Relative paths and `~` may not be resolved correctly by the MCP server.
 
-## セッション期限切れ時の再生成
+## Session Renewal
 
-Splunk のセッションは一定時間で切れます。ログイン画面に飛ばされたり MCP が認証エラーになる場合は、同じコマンドで Storage State を再生成してください。
+Splunk sessions expire after a period of time. If the MCP encounters authentication errors or the Splunk login page appears, regenerate the Storage State by running the same command again.
 
-```bash
-node generate-storage-state.js \
-  playwright/.auth/splunk-myenv.env \
-  playwright/.auth/splunk-myenv-storage.json
-```
+After regeneration, toggle the MCP server OFF/ON in Cursor, or restart Cursor to apply the new session.
 
-再生成後、Cursor の MCP を OFF/ON するか、Cursor を再起動すると新しいセッションが使われます。
+## Troubleshooting
 
-## トラブルシューティング
+### Cannot connect to Splunk server
 
-### Splunk サーバーに接続できない
+- Verify that `SPLUNK_URL` is correct and includes the scheme (`https://`).
+- Check that the server is running and the port is accessible through any firewalls.
+- For self-signed certificates, include `--ignore-https-errors` in the MCP server arguments (already included in the example above).
 
-- `SPLUNK_URL` が正しいか、スキーム（`https://`）を含むか確認してください。
-- サーバーが起動しているか、ファイアウォールやネットワークでポートが開いているか確認してください。
-- 自己署名証明書の環境では、Playwright MCP の起動引数に `--ignore-https-errors` を付けます（上記 MCP 設定例に含まれています）。
+### Login fails
 
-### ログインに失敗する
+- Verify `SPLUNK_USER` and `SPLUNK_PASS` are correct.
+- The script waits for a redirect to `**/app/**` after login. Timeout may indicate incorrect credentials or multi-factor authentication (MFA). Check the error message output for details.
 
-- `SPLUNK_USER` と `SPLUNK_PASS` が正しいか確認してください。
-- スクリプトがログイン後の URL（`**/app/**`）への遷移を待ちます。タイムアウトする場合は、認証エラーや多要素認証（MFA）の可能性があります。画面に表示されるエラーメッセージがログに転記されていれば、その内容を確認してください。
+### Certificate error (ERR_CERT_AUTHORITY_INVALID)
 
-### 証明書エラー（ERR_CERT_AUTHORITY_INVALID 等）
+- The script uses `ignoreHTTPSErrors: true`, so certificate errors do not affect Storage State generation.
+- For the MCP server, include `--ignore-https-errors` in its arguments.
 
-- 本ツールは `ignoreHTTPSErrors: true` で Splunk にアクセスするため、スクリプト単体では証明書エラーで止まりません。
-- MCP 利用時は、上記のとおり `--ignore-https-errors` を MCP の起動引数に含めてください。
+### Chromium not found
 
-### Chromium が見つからない
+- Run `npx playwright install chromium` to install the browser.
 
-- `npx playwright install chromium` を実行してブラウザをインストールしてください。
-
-## ファイル構成
+## Project Structure
 
 ```
 playwright-storage-state/
-├── generate-storage-state.js   # 本スクリプト
-├── package.json                # 依存関係
-├── package-lock.json           # バージョン固定
-├── .npmrc                      # npm レジストリ設定
-├── .gitignore                  # playwright/.auth/ と node_modules/ を除外
-├── README.md                   # このファイル
+├── generate-storage-state.js   # Main script
+├── package.json                # Dependencies
+├── package-lock.json           # Lock file
+├── .gitignore                  # Excludes playwright/.auth/ and node_modules/
+├── README.md                   # This file (English)
+├── README.ja.md                # Japanese README
 └── playwright/
-    └── .auth/                  # 認証ファイルの配置先（自分で作成）
-        ├── splunk-myenv.env              # 認証情報
-        └── splunk-myenv-storage.json     # 生成された Storage State
+    └── .auth/                  # Credential storage (created by user)
+        ├── splunk-myenv.env              # Credentials
+        └── splunk-myenv-storage.json     # Generated Storage State
 ```
+
+## License
+
+MIT
