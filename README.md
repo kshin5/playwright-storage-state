@@ -128,7 +128,7 @@ Add the following to `~/.cursor/mcp.json` (Windows: `%USERPROFILE%\.cursor\mcp.j
 
 Splunk sessions expire after a period of time. If the MCP encounters authentication errors or the Splunk login page appears, regenerate the Storage State by running the same command again.
 
-The new session will be used the next time the MCP server starts.
+The file is overwritten in place, so the MCP server will use the new session automatically.
 
 ## Limitations
 
