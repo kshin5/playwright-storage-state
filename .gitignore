@@ -4,3 +4,6 @@ playwright/.auth/
 CLAUDE.md
 .specstory/
 .playwright-mcp/
+.cursor/
+.cursorindexingignore
+.claude/

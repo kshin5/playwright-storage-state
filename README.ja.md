@@ -21,7 +21,11 @@ npx playwright install --with-deps chromium
 
 ## セットアップ
 
-`playwright/.auth/` ディレクトリがなければ作成し、その中に認証情報を記載した `.env` ファイルを配置してください（[Playwright の認証ガイド](https://playwright.dev/docs/auth#core-concepts)のディレクトリ構成を参考にしています）。
+`playwright/.auth/` ディレクトリを作成し、その中に認証情報を記載した `.env` ファイルを配置してください（[Playwright の認証ガイド](https://playwright.dev/docs/auth#core-concepts)のディレクトリ構成を参考にしています）。
+
+```bash
+mkdir -p playwright/.auth
+```
 
 `playwright/.auth/splunk-myenv.env` を以下の内容で作成します:
 
@@ -50,6 +54,8 @@ node generate-storage-state.js <env-file> [output-path]
 ```bash
 node generate-storage-state.js playwright/.auth/splunk-myenv.env
 ```
+
+> **Windows ユーザー向け:** パス区切りは `/` と `\` のどちらでも動作します。
 
 - `output-path` を省略すると、`.env` を `-storage.json` に置換して自動生成されます（例: `splunk-myenv.env` → `splunk-myenv-storage.json`）。
 - 出力先を明示的に指定することもできます:
@@ -110,7 +116,6 @@ echo "$(pwd)/playwright/.auth/splunk-myenv-storage.json"
       "command": "npx",
       "args": [
         "-y", "@playwright/mcp@latest",
-        "--browser", "chromium",
         "--headless",
         "--ignore-https-errors",
         "--isolated",
@@ -120,6 +125,8 @@ echo "$(pwd)/playwright/.auth/splunk-myenv-storage.json"
   }
 }
 ```
+
+> **Windows の場合:** `--storage-state` のパスは `/` でも `\\` でも動作します（例: `"C:/Users/..."` または `"C:\\Users\\..."`）。
 
 </details>
 
@@ -148,7 +155,7 @@ Splunk のセッションは一定時間で切れます。認証エラーが発�
 ### 証明書エラー（ERR_CERT_AUTHORITY_INVALID 等）
 
 - 本ツールは `ignoreHTTPSErrors: true` で Splunk にアクセスするため、スクリプト単体では証明書エラーで止まりません。
-- MCP 利用時は、上記のとおり `--ignore-https-errors` を MCP の起動引数に含めてください。
+- MCP 利用時に証明書エラーが出る場合は、`--ignore-https-errors` を起動引数に追加してください（上記設定例に含まれています）。
 
 ### ログインやページ読み込みでタイムアウトする
 
