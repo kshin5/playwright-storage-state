@@ -79,7 +79,7 @@ playwright/.auth/
 └── splunk-prod-storage.json     # 本番環境のセッション
 ```
 
-MCP 設定も環境ごとに登録すれば、Cursor から複数の Splunk に接続できます。
+MCP 設定も環境ごとに登録すれば、複数の Splunk に接続できます。
 
 ## Playwright MCP での使用
 
@@ -128,7 +128,7 @@ echo "$(pwd)/playwright/.auth/splunk-myenv-storage.json"
 
 Splunk のセッションは一定時間で切れます。ログイン画面に飛ばされたり MCP が認証エラーになる場合は、同じコマンドで Storage State を再生成してください。
 
-再生成後、MCP サーバーを再起動すると新しいセッションが使われます（例: Cursor で MCP を OFF/ON する、または IDE を再起動する）。
+再生成後、次回の MCP サーバー起動時から新しいセッションが使われます。
 
 ## 制限事項
 
@@ -152,10 +152,6 @@ Splunk のセッションは一定時間で切れます。ログイン画面に�
 
 - 本ツールは `ignoreHTTPSErrors: true` で Splunk にアクセスするため、スクリプト単体では証明書エラーで止まりません。
 - MCP 利用時は、上記のとおり `--ignore-https-errors` を MCP の起動引数に含めてください。
-
-### Chromium が見つからない
-
-- `npx playwright install --with-deps chromium` を実行してブラウザを再インストールしてください。
 
 ### ログインやページ読み込みでタイムアウトする
 

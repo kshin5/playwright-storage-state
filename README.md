@@ -79,7 +79,7 @@ playwright/.auth/
 └── splunk-prod-storage.json     # Prod session
 ```
 
-Register each environment as a separate MCP server to connect to multiple Splunk instances from Cursor.
+Register each environment as a separate MCP server to connect to multiple Splunk instances.
 
 ## Using with Playwright MCP
 
@@ -128,7 +128,7 @@ Add the following to `~/.cursor/mcp.json` (Windows: `%USERPROFILE%\.cursor\mcp.j
 
 Splunk sessions expire after a period of time. If the MCP encounters authentication errors or the Splunk login page appears, regenerate the Storage State by running the same command again.
 
-After regeneration, restart the MCP server to use the new session (e.g. toggle MCP OFF/ON in Cursor, or restart your IDE).
+The new session will be used the next time the MCP server starts.
 
 ## Limitations
 
@@ -152,10 +152,6 @@ After regeneration, restart the MCP server to use the new session (e.g. toggle M
 
 - The script uses `ignoreHTTPSErrors: true`, so certificate errors do not affect Storage State generation.
 - For the MCP server, include `--ignore-https-errors` in its arguments.
-
-### Chromium not found
-
-- Run `npx playwright install --with-deps chromium` to reinstall the browser.
 
 ### Timeout during login or page load
 
