@@ -42,33 +42,32 @@ SPLUNK_PASS=your-password
 プロジェクトディレクトリ内で実行します。
 
 ```bash
-node generate-storage-state.js <env-file> <output-path>
+node generate-storage-state.js <env-file> [output-path]
 ```
 
 例:
 
 ```bash
-node generate-storage-state.js \
-  playwright/.auth/splunk-myenv.env \
-  playwright/.auth/splunk-myenv-storage.json
+node generate-storage-state.js playwright/.auth/splunk-myenv.env
 ```
 
-- 出力先のディレクトリが存在しない場合は自動作成されます（作成時にはログに `Created directory: ...` と出ます）。
+- `output-path` を省略すると、`.env` を `-storage.json` に置換して自動生成されます（例: `splunk-myenv.env` → `splunk-myenv-storage.json`）。
+- 出力先を明示的に指定することもできます:
+  ```bash
+  node generate-storage-state.js playwright/.auth/splunk-myenv.env playwright/.auth/custom-output.json
+  ```
+- 出力先のディレクトリが存在しない場合は自動作成されます。
 
 ### 複数の Splunk 環境を管理する
 
-環境ごとに `.env` ファイルと Storage State を分けて管理できます:
+環境ごとに `.env` ファイルを作成します:
 
 ```bash
 # 開発環境
-node generate-storage-state.js \
-  playwright/.auth/splunk-dev.env \
-  playwright/.auth/splunk-dev-storage.json
+node generate-storage-state.js playwright/.auth/splunk-dev.env
 
 # 本番環境
-node generate-storage-state.js \
-  playwright/.auth/splunk-prod.env \
-  playwright/.auth/splunk-prod-storage.json
+node generate-storage-state.js playwright/.auth/splunk-prod.env
 ```
 
 ```

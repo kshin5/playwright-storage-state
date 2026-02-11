@@ -6,8 +6,8 @@ const path = require('path');
 const fs = require('fs');
 
 /**
- * ホームディレクトリを取得する（Windows / Linux / macOS / WSL2 対応）
- * @returns {string} ホームディレクトリのパス
+ * Get the home directory (cross-platform)
+ * @returns {string} Path to home directory
  */
 function getHomeDir() {
   const home = process.env.HOME || process.env.USERPROFILE;
@@ -19,9 +19,9 @@ function getHomeDir() {
 }
 
 /**
- * パス先頭の ~ のみをホームディレクトリに展開する（パス内の ~ は置換しない）
- * @param {string} filePath - 入力パス
- * @returns {string} 展開後のパス
+ * Expand tilde (~) at the beginning of a path to the home directory
+ * @param {string} filePath - Input path
+ * @returns {string} Expanded path
  */
 function expandTilde(filePath) {
   if (filePath === '~' || filePath.startsWith('~/') || filePath.startsWith('~\\')) {
@@ -31,16 +31,40 @@ function expandTilde(filePath) {
 }
 
 /**
- * Splunk にログインして Storage State を生成する
+ * Generate output path from env file path
+ * Converts .env extension to -storage.json
+ * @param {string} envFilePath - Path to env file
+ * @returns {string} Generated output path
+ */
+function generateOutputPath(envFilePath) {
+  if (!envFilePath.endsWith('.env')) {
+    return null;
+  }
+  return envFilePath.slice(0, -4) + '-storage.json';
+}
+
+/**
+ * Log in to Splunk and generate Storage State
  */
 async function generateStorageState() {
   const envFile = process.argv[2];
-  const outputPath = process.argv[3];
+  let outputPath = process.argv[3];
 
-  if (!envFile || !outputPath) {
-    console.error('Usage: node generate-storage-state.js <env-file> <output-path>');
-    console.error('Example: node generate-storage-state.js playwright/.auth/splunk-myenv.env playwright/.auth/splunk-myenv-storage.json');
+  if (!envFile) {
+    console.error('Usage: node generate-storage-state.js <env-file> [output-path]');
+    console.error('Example: node generate-storage-state.js playwright/.auth/splunk-myenv.env');
+    console.error('         (outputs to playwright/.auth/splunk-myenv-storage.json)');
     process.exit(1);
+  }
+
+  // Auto-generate output path if not provided
+  if (!outputPath) {
+    outputPath = generateOutputPath(envFile);
+    if (!outputPath) {
+      console.error('Error: Cannot auto-generate output path. Env file must end with .env');
+      console.error('       Or specify output path explicitly as second argument.');
+      process.exit(1);
+    }
   }
 
   const envPath = path.resolve(expandTilde(envFile));
