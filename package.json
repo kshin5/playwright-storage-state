@@ -1,0 +1,14 @@
+{
+  "name": "playwright-storage-state",
+  "version": "1.0.0",
+  "description": "Playwright MCP 用 Splunk Storage State 生成ツール",
+  "main": "generate-storage-state.js",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.3",
+    "playwright": "^1.58.2"
+  }
+}

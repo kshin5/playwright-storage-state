@@ -1,0 +1,6 @@
+node_modules/
+playwright/.auth/
+.npmrc
+CLAUDE.md
+.specstory/
+.playwright-mcp/
