@@ -55,6 +55,32 @@ node generate-storage-state.js \
 
 - If the output directory does not exist, it will be created automatically.
 
+### Managing multiple Splunk environments
+
+Create separate `.env` and Storage State files for each environment:
+
+```bash
+# Development
+node generate-storage-state.js \
+  playwright/.auth/splunk-dev.env \
+  playwright/.auth/splunk-dev-storage.json
+
+# Production
+node generate-storage-state.js \
+  playwright/.auth/splunk-prod.env \
+  playwright/.auth/splunk-prod-storage.json
+```
+
+```
+playwright/.auth/
+├── splunk-dev.env               # Dev credentials
+├── splunk-dev-storage.json      # Dev session
+├── splunk-prod.env              # Prod credentials
+└── splunk-prod-storage.json     # Prod session
+```
+
+Register each environment as a separate MCP server to connect to multiple Splunk instances from Cursor.
+
 ## Using with Playwright MCP
 
 Pass the generated Storage State file to the Playwright MCP server using the `--storage-state` option with an **absolute path**:

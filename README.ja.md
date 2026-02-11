@@ -55,6 +55,32 @@ node generate-storage-state.js \
 
 - 出力先のディレクトリが存在しない場合は自動作成されます（作成時にはログに `Created directory: ...` と出ます）。
 
+### 複数の Splunk 環境を管理する
+
+環境ごとに `.env` ファイルと Storage State を分けて管理できます:
+
+```bash
+# 開発環境
+node generate-storage-state.js \
+  playwright/.auth/splunk-dev.env \
+  playwright/.auth/splunk-dev-storage.json
+
+# 本番環境
+node generate-storage-state.js \
+  playwright/.auth/splunk-prod.env \
+  playwright/.auth/splunk-prod-storage.json
+```
+
+```
+playwright/.auth/
+├── splunk-dev.env               # 開発環境の認証情報
+├── splunk-dev-storage.json      # 開発環境のセッション
+├── splunk-prod.env              # 本番環境の認証情報
+└── splunk-prod-storage.json     # 本番環境のセッション
+```
+
+MCP 設定も環境ごとに登録すれば、Cursor から複数の Splunk に接続できます。
+
 ## Playwright MCP での使用
 
 生成した Storage State ファイルを Playwright MCP サーバーの `--storage-state` オプションに**絶対パス**で渡します:
