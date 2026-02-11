@@ -13,7 +13,7 @@
 ## インストール
 
 ```bash
-git clone https://github.com/<owner>/playwright-storage-state.git
+git clone https://github.com/kshin5/playwright-storage-state.git
 cd playwright-storage-state
 npm install
 npx playwright install --with-deps chromium
