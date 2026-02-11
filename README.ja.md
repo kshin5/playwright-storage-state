@@ -16,7 +16,7 @@
 git clone https://github.com/<owner>/playwright-storage-state.git
 cd playwright-storage-state
 npm install
-npx playwright install chromium
+npx playwright install --with-deps chromium
 ```
 
 ## セットアップ
@@ -33,15 +33,9 @@ SPLUNK_PASS=your-password
 
 ## セキュリティ上の注意
 
-- `.env` ファイルには **パスワードが平文** で保存されます。アクセス権限を適切に設定してください。
+- `.env` ファイルには **パスワードが平文** で保存されます。他のユーザーからアクセスできないよう権限を設定してください。
 - `playwright/.auth/` は `.gitignore` で除外済みのため、git にはコミットされません。
-- Linux / macOS / WSL2 では、ファイルのアクセス権限を制限してください:
-  ```bash
-  chmod 600 playwright/.auth/splunk-myenv.env
-  ```
-- 生成された Storage State ファイル（JSON）も認証情報に相当します。
-  - Linux / macOS / WSL2 ではスクリプトが自動で `chmod 600` を設定します。
-  - Windows ではスクリプト実行後にアクセス権限を手動で確認してください。
+- 生成された Storage State ファイル（JSON）も認証情報に相当します。スクリプトは保存後に自動でファイル権限を制限します（Windows ではアクセス権限を手動で確認してください）。
 
 ## 使用方法
 
@@ -74,7 +68,15 @@ node generate-storage-state.js \
 <details>
 <summary>例: Cursor IDE での設定</summary>
 
-`~/.cursor/mcp.json`（Windows: `%USERPROFILE%\.cursor\mcp.json`）に以下を追加します。`mcpServers` オブジェクトの中に記述します:
+まず、Storage State ファイルの絶対パスを確認します:
+
+```bash
+# プロジェクトディレクトリで実行
+cd playwright-storage-state
+echo "$(pwd)/playwright/.auth/splunk-myenv-storage.json"
+```
+
+`~/.cursor/mcp.json`（Windows: `%USERPROFILE%\.cursor\mcp.json`）に以下を追加します。`mcpServers` オブジェクトの中に記述し、`--storage-state` の値を上記で確認したパスに置き換えてください:
 
 ```json
 {
@@ -87,20 +89,12 @@ node generate-storage-state.js \
         "--headless",
         "--ignore-https-errors",
         "--isolated",
-        "--storage-state", "<絶対パス>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json"
+        "--storage-state", "/your/absolute/path/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json"
       ]
     }
   }
 }
 ```
-
-絶対パスの例:
-
-| 環境 | パスの例 |
-|------|---------|
-| Linux / WSL2 | `/home/<USER>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json` |
-| macOS | `/Users/<USER>/playwright-storage-state/playwright/.auth/splunk-myenv-storage.json` |
-| Windows | `C:\\Users\\<USER>\\playwright-storage-state\\playwright\\.auth\\splunk-myenv-storage.json` |
 
 </details>
 
@@ -135,8 +129,7 @@ Splunk のセッションは一定時間で切れます。ログイン画面に�
 
 ### Chromium が見つからない
 
-- `npx playwright install chromium` を実行してブラウザをインストールしてください。`npm install` の後に必要です。
-- Linux（CI やミニマルな環境）では、システム依存パッケージも必要になる場合があります: `npx playwright install --with-deps chromium`。
+- `npx playwright install --with-deps chromium` を実行してブラウザを再インストールしてください。
 
 ### ログインやページ読み込みでタイムアウトする
 
