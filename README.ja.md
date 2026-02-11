@@ -1,6 +1,6 @@
 # Playwright Storage State 生成ツール（Splunk 向け）
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 [English README](README.md)
 
@@ -160,4 +160,4 @@ playwright-storage-state/
 
 ## ライセンス
 
-MIT
+Apache License 2.0 - 詳細は [LICENSE](LICENSE) を参照してください。

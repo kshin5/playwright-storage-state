@@ -1,6 +1,6 @@
 # Playwright Storage State Generator for Splunk
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
 
 [Japanese README](README.ja.md)
 
@@ -160,4 +160,4 @@ playwright-storage-state/
 
 ## License
 
-MIT
+Apache License 2.0 - see [LICENSE](LICENSE) for details.
