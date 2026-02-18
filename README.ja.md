@@ -32,8 +32,10 @@ mkdir -p playwright/.auth
 ```ini
 SPLUNK_URL=https://your-splunk-server:8000
 SPLUNK_USER=your-username
-SPLUNK_PASS=your-password
+SPLUNK_PASS='your-password'
 ```
+
+> **注意:** パスワードに `#` や `$` などの特殊文字が含まれる場合、シングルクォート (`'...'`) で囲んでください。クォートなしの場合、`#` 以降がコメントとして無視され、ログインに失敗します。
 
 ## セキュリティ上の注意
 

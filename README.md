@@ -32,8 +32,10 @@ Create `playwright/.auth/splunk-myenv.env` with the following content:
 ```ini
 SPLUNK_URL=https://your-splunk-server:8000
 SPLUNK_USER=your-username
-SPLUNK_PASS=your-password
+SPLUNK_PASS='your-password'
 ```
+
+> **Note:** If your password contains special characters such as `#` or `$`, wrap it in single quotes (`'...'`). Without quotes, `#` is treated as the start of a comment and everything after it is ignored, causing login failures.
 
 ## Security
 
