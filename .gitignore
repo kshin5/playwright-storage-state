@@ -1,5 +1,6 @@
 node_modules/
-playwright/.auth/
+playwright/.auth/*
+!playwright/.auth/splunk-myenv.env.example
 .npmrc
 CLAUDE.md
 .specstory/

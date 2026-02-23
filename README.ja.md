@@ -21,13 +21,14 @@ npx playwright install --with-deps chromium
 
 ## セットアップ
 
-`playwright/.auth/` ディレクトリを作成し、その中に認証情報を記載した `.env` ファイルを配置してください（[Playwright の認証ガイド](https://playwright.dev/docs/auth#core-concepts)のディレクトリ構成を参考にしています）。
+同梱のテンプレートをコピーし、認証情報を記入してください（[Playwright の認証ガイド](https://playwright.dev/docs/auth#core-concepts)のディレクトリ構成を参考にしています）。
 
 ```bash
-mkdir -p playwright/.auth
+cp playwright/.auth/splunk-myenv.env.example playwright/.auth/splunk-myenv.env
+# .env ファイルを編集して認証情報を記入
 ```
 
-`playwright/.auth/splunk-myenv.env` を以下の内容で作成します:
+`.env` ファイルの内容:
 
 ```ini
 SPLUNK_URL=https://your-splunk-server:8000
@@ -40,7 +41,7 @@ SPLUNK_PASS='your-password'
 ## セキュリティ上の注意
 
 - `.env` ファイルには **パスワードが平文** で保存されます。他のユーザーからアクセスできないよう権限を設定してください。
-- `playwright/.auth/` は `.gitignore` で除外済みのため、git にはコミットされません。
+- `playwright/.auth/` 内の認証ファイルは `.gitignore` で除外済みです。Git で管理されるのは `.env.example` テンプレートのみです。
 - 生成された Storage State ファイル（JSON）も認証情報に相当します。スクリプトは保存後に自動でファイル権限を制限します（Windows ではアクセス権限を手動で確認してください）。
 
 ## 使用方法
@@ -170,13 +171,14 @@ playwright-storage-state/
 ├── generate-storage-state.js   # メインスクリプト
 ├── package.json                # 依存関係
 ├── package-lock.json           # バージョン固定
-├── .gitignore                  # playwright/.auth/ と node_modules/ を除外
+├── .gitignore                  # 認証ファイルと node_modules/ を除外
 ├── README.md                   # 英語版 README
 ├── README.ja.md                # このファイル（日本語版）
 └── playwright/
-    └── .auth/                  # 認証ファイルの配置先（自分で作成）
-        ├── splunk-myenv.env              # 認証情報
-        └── splunk-myenv-storage.json     # 生成された Storage State
+    └── .auth/
+        ├── splunk-myenv.env.example      # テンプレート（Git 管理）
+        ├── splunk-myenv.env              # 認証情報（Git 除外）
+        └── splunk-myenv-storage.json     # 生成された Storage State（Git 除外）
 ```
 
 ## ライセンス

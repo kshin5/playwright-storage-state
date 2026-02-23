@@ -21,13 +21,14 @@ npx playwright install --with-deps chromium
 
 ## Setup
 
-Create the `playwright/.auth/` directory and a `.env` file with your Splunk credentials (directory structure inspired by [Playwright's authentication guide](https://playwright.dev/docs/auth#core-concepts)).
+Copy the included template and fill in your Splunk credentials (directory structure inspired by [Playwright's authentication guide](https://playwright.dev/docs/auth#core-concepts)).
 
 ```bash
-mkdir -p playwright/.auth
+cp playwright/.auth/splunk-myenv.env.example playwright/.auth/splunk-myenv.env
+# Edit the .env file with your credentials
 ```
 
-Create `playwright/.auth/splunk-myenv.env` with the following content:
+The `.env` file should contain:
 
 ```ini
 SPLUNK_URL=https://your-splunk-server:8000
@@ -40,7 +41,7 @@ SPLUNK_PASS='your-password'
 ## Security
 
 - The `.env` file stores passwords in **plain text**. Restrict access so only you can read it.
-- `playwright/.auth/` is excluded from git via `.gitignore`.
+- Credential files in `playwright/.auth/` are excluded from git via `.gitignore`. Only the `.env.example` template is tracked.
 - The generated Storage State file also contains session credentials. The script automatically restricts file permissions after saving (on Windows, verify permissions manually).
 
 ## Usage
@@ -170,13 +171,14 @@ playwright-storage-state/
 ├── generate-storage-state.js   # Main script
 ├── package.json                # Dependencies
 ├── package-lock.json           # Lock file
-├── .gitignore                  # Excludes playwright/.auth/ and node_modules/
+├── .gitignore                  # Excludes credentials and node_modules/
 ├── README.md                   # This file (English)
 ├── README.ja.md                # Japanese README
 └── playwright/
-    └── .auth/                  # Credential storage (created by user)
-        ├── splunk-myenv.env              # Credentials
-        └── splunk-myenv-storage.json     # Generated Storage State
+    └── .auth/
+        ├── splunk-myenv.env.example      # Template (tracked in git)
+        ├── splunk-myenv.env              # Your credentials (git-ignored)
+        └── splunk-myenv-storage.json     # Generated Storage State (git-ignored)
 ```
 
 ## License
